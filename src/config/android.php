@@ -7,7 +7,7 @@
  */
 
 return array(
+    'accessid' => null ,
     'appkey' => '' ,
     'appsecret' => '' ,
-    'provider' => 'Xinge' ,
 );

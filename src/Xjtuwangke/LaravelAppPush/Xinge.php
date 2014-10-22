@@ -21,32 +21,75 @@ class Xinge extends PushServiceProvider{
      */
     protected static $app = null;
 
-    public static function init(){
-        parent::init();
-        if( ! static::$app ){
-            static::$app = new XingeApp( static::$appKey , static::$appSecret );
+    public static $devices = [ 'ios' , 'android' ];
+
+    public static function pushAll( $title , $content , $expire = 86400 , $device = null ){
+        $mess = new Message();
+        $mess->setExpireTime( $expire );
+        $mess->setTitle( $title );
+        $mess->setContent( $content );
+        if( ! $device ){
+            $device = static::$devices;
+        }
+        if( ! is_array( $device ) ){
+            $device = [ $device ];
+        }
+        foreach( $device as $one ){
+            $app = new XingeApp( \Config::get( 'laravel-app-push::' . $one . '.accessid' ) , \Config::get( 'laravel-app-push::' . $one . '.appsecret' ) );
+            $ret = $app->PushAllDevices(0 , $mess);
+            var_dump( $ret );
+            static::log( $ret );
         }
     }
 
-    public static function pushSingleDeviceMessage( $title , $content , $token ){
+    public static function pushSingleByToken( $title , $content , $token , $device ){
         $mess = new Message();
         $mess->setTitle( $title );
         $mess->setContent( $content );
         $mess->setType( Message::TYPE_MESSAGE );
-        $ret = static::$app->PushSingleDevice( $token , $mess);
+        $app = new XingeApp( \Config::get( 'laravel-app-push::' . $device . '.accessid' ) , \Config::get( 'laravel-app-push::' . $device . '.appsecret' ) );
+        $ret = $app->PushSingleDevice( $token , $mess);
         static::log( $ret );
-        return $ret;
     }
 
-    public static function pushSingleAccount( $title , $content , $account ){
+    public static function pushSingleByAccount( $title , $content , $account , $expire = 86400 , $device = null ){
         $mess = new Message();
-        $mess->setExpireTime(86400);
+        $mess->setExpireTime( $expire );
         $mess->setTitle( $title );
         $mess->setContent( $content );
         $mess->setType(Message::TYPE_MESSAGE);
-        $ret = static::$app->PushSingleAccount(0, $account , $mess);
-        static::log( $ret );
-        return ($ret);
+        if( ! $device ){
+            $device = static::$devices;
+        }
+        if( ! is_array( $device ) ){
+            $device = [ $device ];
+        }
+        foreach( $device as $one ){
+            $app = new XingeApp( \Config::get( 'laravel-app-push::' . $one . '.accessid' ) , \Config::get( 'laravel-app-push::' . $one . '.appsecret' ) );
+            $ret = $app->PushSingleAccount(0, $account , $mess);
+            var_dump( $ret );
+            static::log( $ret );
+        }
+    }
+
+    public static function pushSingleByAccountIos( $title , $content , $account , $expire = 86400 , $device = null ){
+        $mess = new MessageIOS();
+        $mess->setExpireTime( $expire );
+        $mess->setTitle( $title );
+        $mess->setContent( $content );
+        $mess->setType(Message::TYPE_MESSAGE);
+        if( ! $device ){
+            $device = static::$devices;
+        }
+        if( ! is_array( $device ) ){
+            $device = [ $device ];
+        }
+        foreach( $device as $one ){
+            $app = new XingeApp( \Config::get( 'laravel-app-push::' . $one . '.accessid' ) , \Config::get( 'laravel-app-push::' . $one . '.appsecret' ) );
+            $ret = $app->PushSingleAccount(0, $account , $mess);
+            var_dump( $ret );
+            static::log( $ret );
+        }
     }
 
 
